@@ -12,7 +12,8 @@ import mysql.connector
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
 
-def filter_datum(fields: List[str], redaction: str, message: str, separator: str) -> str:
+def filter_datum(fields: List[str], redaction: str,
+                 message: str, separator: str) -> str:
     """
     Obfuscates the values of specified fields in a log message.
     """
@@ -39,7 +40,10 @@ class RedactingFormatter(logging.Formatter):
         """
         Filters values in incoming log records using filter_datum.
         """
-        record.msg = filter_datum(self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR)
+        record.msg = filter_datum(
+            self.fields, self.REDACTION,
+            record.getMessage(), self.SEPARATOR
+        )
         return super().format(record)
 
 
@@ -51,7 +55,8 @@ def get_logger() -> logging.Logger:
     logger.setLevel(logging.INFO)
     logger.propagate = False
     handler = logging.StreamHandler()
-    handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
+    formatter = RedactingFormatter(list(PII_FIELDS))
+    handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
 
@@ -70,14 +75,18 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
 def main():
     """
-    Retrieves and logs all rows from the users table with PII fields obfuscated.
+    Retrieves and logs all rows from the users table
+    with PII fields obfuscated.
     """
     db = get_db()
     cursor = db.cursor()
     cursor.execute("SELECT * FROM users;")
     logger = get_logger()
     for row in cursor:
-        message = "; ".join(f"{desc[0]}={str(value)}" for desc, value in zip(cursor.description, row)) + ";"
+        message = "; ".join(
+            f"{desc[0]}={str(value)}"
+            for desc, value in zip(cursor.description, row)
+        ) + ";"
         logger.info(message)
     cursor.close()
     db.close()
