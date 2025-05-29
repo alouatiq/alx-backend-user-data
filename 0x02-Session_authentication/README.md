@@ -44,45 +44,70 @@ $ API_HOST=0.0.0.0 API_PORT=5000 python3 -m api.v1.app
 ## Stracture
 
 ```
-0x01-Basic_authentication/                     # Project root directory
+0x02-Session_authentication/
+├── README.md                             # ✅ REQUIRED by project spec
+│                                         # Describes the project and setup
+│                                         # [Project Requirement]
 │
-├── README.md                                  # ✅ REQUIRED: Project description (Mentioned in Requirements)
-├── requirements.txt                           # ✅ REQUIRED: Contains dependencies to install (from archive.zip)
+├── requirements.txt                      # ✅ REQUIRED by project spec
+│                                         # Contains dependencies (e.g., Flask)
+│                                         # [Copied from previous project]
 │
-├── api/                                       # ✅ REQUIRED: Comes from archive.zip (Task 0)
-│   └── v1/                                    # API version 1 structure
-│       ├── __init__.py                        # Init module (archive content)
-│       ├── app.py                             # ✅ Tasks 1, 2, 5, 6
-│       │                                      # - Task 1: Add 401 handler
-│       │                                      # - Task 2: Add 403 handler
-│       │                                      # - Task 5: Add before_request auth checks
-│       │                                      # - Task 6: Use BasicAuth depending on AUTH_TYPE
-│       └── views/                             # Views (endpoints)
-│           ├── __init__.py                    # View package initializer
-│           ├── index.py                       # ✅ Tasks 1, 2
-│           │                                  # - Task 1: /unauthorized → abort(401)
-│           │                                  # - Task 2: /forbidden → abort(403)
-│           └── users.py                       # Default endpoint file (archive content, used in tests)
+├── api/
+│   └── v1/
+│       ├── __init__.py                   # ✅ Edit only if needed
+│       │                                 # Registers Blueprints
+│       │                                 # [Base project structure]
+│       │
+│       ├── app.py                        # ✅ MUST BE MODIFIED
+│       │                                 # - Task 0: Assign `request.current_user`
+│       │                                 # - Task 1: Switch to SessionAuth by env
+│       │                                 # - Task 5: Add login path to excluded
+│       │                                 # - Task 9, 10: Use SessionExpAuth/DBAuth
+│       │
+│       ├── views/
+│       │   ├── __init__.py               # ✅ Edit to import session_auth view
+│       │   │                             # - Task 7: Register session_auth route
+│       │   │
+│       │   ├── users.py                  # ✅ MUST BE MODIFIED
+│       │   │                             # - Task 0: Handle `/users/me`
+│       │   │
+│       │   └── session_auth.py           # 🆕 MUST BE CREATED
+│       │                                 # - Task 7: POST /auth_session/login
+│       │                                 # - Task 8: DELETE /auth_session/logout
 │
-├── models/                                    # ✅ REQUIRED: Comes from archive.zip (User management)
-│   ├── __init__.py                            # Module initializer
-│   ├── base_model.py                          # Likely base class for models
-│   ├── user.py                                # ✅ Task 10 (user auth logic)
-│   └── ...                                    # Possibly storage handlers (file_storage.py etc.)
+├── models/
+│   ├── user.py                           # ✅ Already present from previous project
+│   │                                     # Used for password validation and user retrieval
+│   │
+│   └── user_session.py                   # 🆕 MUST BE CREATED
+│                                         # - Task 10: Store Session ID in DB
 │
-└── api/v1/auth/                               # ✅ Tasks 3–13: Authentication logic
-    ├── __init__.py                            # Init file for auth package (Task 3)
-    ├── auth.py                                # ✅ Tasks 3, 4, 5, 13
-    │                                          # - Task 3: Define Auth base class
-    │                                          # - Task 4: Implement require_auth with / logic
-    │                                          # - Task 5: Add authorization_header
-    │                                          # - Task 13: Add wildcard path (*) support
-    └── basic_auth.py                          # ✅ Tasks 6–12
-                                               # - Task 6: Create BasicAuth class
-                                               # - Task 7: extract_base64_authorization_header
-                                               # - Task 8: decode_base64_authorization_header
-                                               # - Task 9: extract_user_credentials
-                                               # - Task 10: user_object_from_credentials
-                                               # - Task 11: current_user override
-                                               # - Task 12: support ":" in passwords
+├── main_0.py to main_6.py                # ✅ Used for testing each task
+│                                         # Task validation test scripts
+│
+├── main_100.py                           # ✅ Test for advanced Task 10
+│
+├── api/
+│   └── v1/
+│       └── auth/
+│           ├── __init__.py               # ✅ From base project (no change expected)
+│           │
+│           ├── auth.py                   # ✅ MUST BE MODIFIED
+│           │                             # - Task 4: Add session_cookie()
+│           │
+│           ├── basic_auth.py             # ✅ From previous project
+│           │
+│           ├── session_auth.py           # 🆕 MUST BE CREATED
+│           │                             # - Task 1: Define empty SessionAuth
+│           │                             # - Task 2: Add create_session()
+│           │                             # - Task 3: Add user_id_for_session_id()
+│           │                             # - Task 6: Add current_user()
+│           │                             # - Task 8: Add destroy_session()
+│           │
+│           ├── session_exp_auth.py       # 🆕 MUST BE CREATED
+│           │                             # - Task 9: Expiration support
+│           │
+│           └── session_db_auth.py        # 🆕 MUST BE CREATED
+│                                         # - Task 10: DB-backed session storage
 ```
