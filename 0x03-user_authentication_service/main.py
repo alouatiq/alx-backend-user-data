@@ -66,7 +66,10 @@ def update_password(email: str, reset_token: str, new_password: str) -> None:
         f"{BASE_URL}/reset_password", data=data
     )
     assert response.status_code == 200
-    assert response.json() == {"email": email, "message": "Password updated"}
+    assert response.json() == {
+        "email": email,
+        "message": "Password updated"
+    }
 
 
 EMAIL = "guillaume@holberton.io"
