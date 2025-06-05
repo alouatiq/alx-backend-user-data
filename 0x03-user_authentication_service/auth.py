@@ -37,7 +37,9 @@ class Auth:
         """Validate user credentials"""
         try:
             user = self._db.find_user_by(email=email)
-            return bcrypt.checkpw(password.encode(), user.hashed_password.encode())
+            return bcrypt.checkpw(
+                password.encode(), user.hashed_password.encode()
+            )
         except Exception:
             return False
 
@@ -51,7 +53,9 @@ class Auth:
         except NoResultFound:
             return None
 
-    def get_user_from_session_id(self, session_id: Optional[str]) -> Optional[User]:
+    def get_user_from_session_id(
+        self, session_id: Optional[str]
+    ) -> Optional[User]:
         """Get user instance by session ID"""
         if session_id is None:
             return None
@@ -82,6 +86,8 @@ class Auth:
         try:
             user = self._db.find_user_by(reset_token=reset_token)
             hashed_pwd = _hash_password(password).decode()
-            self._db.update_user(user.id, hashed_password=hashed_pwd, reset_token=None)
+            self._db.update_user(
+                user.id, hashed_password=hashed_pwd, reset_token=None
+            )
         except NoResultFound:
             raise ValueError
