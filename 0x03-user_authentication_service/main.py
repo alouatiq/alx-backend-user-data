@@ -6,18 +6,24 @@ BASE_URL = "http://localhost:5000"
 
 
 def register_user(email: str, password: str) -> None:
-    response = requests.post(f"{BASE_URL}/users", data={"email": email, "password": password})
+    response = requests.post(
+        f"{BASE_URL}/users", data={"email": email, "password": password}
+    )
     assert response.status_code == 200
     assert response.json() == {"email": email, "message": "user created"}
 
 
 def log_in_wrong_password(email: str, password: str) -> None:
-    response = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    response = requests.post(
+        f"{BASE_URL}/sessions", data={"email": email, "password": password}
+    )
     assert response.status_code == 401
 
 
 def log_in(email: str, password: str) -> str:
-    response = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    response = requests.post(
+        f"{BASE_URL}/sessions", data={"email": email, "password": password}
+    )
     assert response.status_code == 200
     session_id = response.cookies.get("session_id")
     assert session_id is not None
