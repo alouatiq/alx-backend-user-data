@@ -1,46 +1,37 @@
 #!/usr/bin/env python3
-"""Session authentication routes: login & logout
+""" Module for handling session authentication routes
 """
 from api.v1.views import app_views
 from flask import request, jsonify, abort
 from models.user import User
-from os import getenv
+from api.v1.auth.session_auth import SessionAuth
 
-
-def auth():
-    """Lazy-import the global auth instance to avoid circular import"""
-    from api.v1.app import auth
-    return auth
+session_auth = SessionAuth()
 
 
 @app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
-def session_login():
-    """POST /api/v1/auth_session/login — create a Session ID"""
+def auth_session_login():
+    """ POST /auth_session/login
+    Creates a session and returns user data + sets cookie
+    """
     email = request.form.get('email')
-    pwd = request.form.get('password')
+    password = request.form.get('password')
 
-    if not email:
+    if email is None or email == '':
         return jsonify({"error": "email missing"}), 400
-    if not pwd:
+
+    if password is None or password == '':
         return jsonify({"error": "password missing"}), 400
 
     users = User.search({"email": email})
-    if not users:
+    if not users or len(users) == 0:
         return jsonify({"error": "no user found for this email"}), 404
 
     user = users[0]
-    if not user.is_valid_password(pwd):
+    if not user.is_valid_password(password):
         return jsonify({"error": "wrong password"}), 401
 
-    session_id = auth().create_session(user.id)
-    resp = jsonify(user.to_json())
-    resp.set_cookie(getenv("SESSION_NAME"), session_id)
-    return resp
-
-
-@app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
-def session_logout():
-    """DELETE /api/v1/auth_session/logout — destroy the Session ID"""
-    if not auth().destroy_session(request):
-        abort(404)
-    return jsonify({}), 200
+    session_id = session_auth.create_session(user.id)
+    response = jsonify(user.to_json())
+    response.set_cookie(session_auth.session_cookie_name, session_id)
+    return response
