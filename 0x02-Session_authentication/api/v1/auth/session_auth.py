@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
-""" SessionAuth class for handling session authentication
+"""Session authentication module
 """
+from api.v1.auth.auth import Auth
 import uuid
 from models.user import User
-from api.v1.auth.auth import Auth
+import os
 
 
 class SessionAuth(Auth):
-    """ Session authentication class """
+    """Session Authentication class"""
 
     user_id_by_session_id = {}
 
+    def __init__(self):
+        """Initialize with session cookie name"""
+        super().__init__()
+        self.session_cookie_name = os.getenv("SESSION_NAME", "_my_session_id")
+
     def create_session(self, user_id=None):
-        """
-        Creates a session ID for a given user_id and stores it
-        """
+        """Create a session ID for a user_id"""
         if user_id is None or not isinstance(user_id, str):
             return None
         session_id = str(uuid.uuid4())
@@ -22,17 +26,13 @@ class SessionAuth(Auth):
         return session_id
 
     def user_id_for_session_id(self, session_id=None):
-        """
-        Returns a user_id based on a session_id
-        """
+        """Retrieve user ID based on session ID"""
         if session_id is None or not isinstance(session_id, str):
             return None
         return self.user_id_by_session_id.get(session_id)
 
     def current_user(self, request=None):
-        """
-        Returns a User instance based on a cookie value from the request
-        """
+        """Return User instance based on session cookie"""
         session_id = self.session_cookie(request)
         if session_id is None:
             return None
